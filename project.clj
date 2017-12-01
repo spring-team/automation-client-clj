@@ -37,6 +37,8 @@
 
   :min-lein-version "2.6.1"
 
+  :vcs :git
+
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
                    "leiningen.release/bump-version" "release"]
