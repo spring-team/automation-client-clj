@@ -2,3 +2,4 @@
 .lein-failures
 *.iml
 target/**
+pom.*
