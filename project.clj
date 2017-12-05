@@ -23,16 +23,9 @@
                  [ch.qos.logback/logback-classic "1.1.7"]
                  [org.slf4j/slf4j-api "1.7.21"]
                  [io.clj/logging "0.8.1"]
-
-                 ;; atomistd git
-                 [tentacles "0.5.1"]
-                 [com.atomist/clj-git-lib "0.2.7"]
                  ]
 
-  :plugins [[lein-metajar "0.1.1"]
-            [clj-plugin   "0.1.16"]
-            [lein-environ "1.1.0"]
-            [clj-local-secrets "0.5.1"]
+  :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]]
 
   :min-lein-version "2.6.1"

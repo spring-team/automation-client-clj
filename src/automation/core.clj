@@ -164,6 +164,12 @@
 (defn user [o user]
   (assoc o :users [user]))
 
+(defn get-team-id
+  [o]
+  ;; we also have (-> o :correlation_context :team :id
+  (or (-> o :extensions :team_id)
+      (-> o :team :id)))
+
 (defn actionable-message
   "  params
        command - incoming Command Request data
