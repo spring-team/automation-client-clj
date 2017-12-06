@@ -90,18 +90,18 @@
     (ws/close connection)
     (catch Throwable t (log/error t (.getMessage t)))))
 
-(def api-connection (atom nil))
+(def connection (atom nil))
 
 (defn- send-new-socket [{socket :connection {:keys [url jwt endpoints]} :response :as conn}]
   (log/info "updating current api websocket")
   (log/infof "endpoints:  %s" endpoints)
   (log/infof "connected to %s" url)
-  (reset! api-connection conn))
+  (reset! connection conn))
 
 (defn- on-receive [msg]
   (let [o (json/read-str msg :key-fn keyword)]
     (if (:ping o)
-      (ws/send-msg (:connection @api-connection) (json/write-str {:pong (:ping o)}))
+      (ws/send-msg (:connection @connection) (json/write-str {:pong (:ping o)}))
       (if (:data o)
         (do
           (log/info "Received events" (with-out-str (clojure.pprint/pprint o)))
@@ -129,7 +129,7 @@
         (client/post
           (format "https://automation-staging.atomist.services/graphql/team/%s" team-id)
           {:body             (json/json-str {:query query :variables []})
-           :headers          {:authorization (format "token %s" (-> @api-connection :response :jwt))}
+           :headers          {:authorization (format "token %s" (-> @connection :response :jwt))}
            :throw-exceptions false})]
     (if (= 200 (:status response))
       (-> response :body (json/read-str :key-fn keyword))
@@ -137,7 +137,7 @@
 
 (defn- send-on-socket [x]
   (log/info "send-on-socket " x)
-  (ws/send-msg (-> api-connection :connection) (json/json-str x)))
+  (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
 (defn success-status [command]
   (-> (select-keys command [:corrid :correlation_context :users :channels])
