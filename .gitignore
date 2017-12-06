@@ -4,3 +4,4 @@
 target/**
 pom.*
 .nrepl-port
+.lein-repl-history

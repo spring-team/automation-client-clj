@@ -11,33 +11,34 @@
   (:import (clojure.lang ExceptionInfo)
            (java.util UUID)))
 
-(def staging-url "https://automation-staging.atomist.services/registration")
-(def prod-url "https://automation.atomist.com/registration")
+(def staging-url "https://automation-staging.atomist.services")
+(def prod-url "https://automation.atomist.com")
 
 (defn get-token []
   (let [gt (cs/get-config-value [:github-token])]
     (str "token " (or (:value gt) gt))))
 
-(defn select-url []
-  (condp = (cs/get-config-value [:domain])
-    "staging.atomist.services." staging-url
-    "prod.atomist.services." prod-url
-    staging-url))
+(defn automation-url [end]
+  (str (condp = (cs/get-config-value [:domain])
+         "staging.atomist.services." staging-url
+         "prod.atomist.services." prod-url
+         staging-url)
+       end))
 
 (defn get-registration []
-  (->> (client/get (select-url) {:headers {:authorization (get-token)}
-                                 :as      :json})
+  (->> (client/get (automation-url "/registration") {:headers {:authorization (get-token)}
+                                                     :as      :json})
        :body))
 
 (defn delete-registration [session-id]
-  (client/delete (format (str (select-url) "/%s") session-id)
+  (client/delete (format (str (automation-url "/registration") "/%s") session-id)
                  {:headers {:authorization (get-token)}}))
 
 (defn register
   "Register for events and listen on websocket"
   []
   (let [auth-header (get-token)
-        url (select-url)]
+        url (automation-url "/registration")]
     (log/info (registry/registration))
     (log/info url)
     (-> (client/post url
@@ -127,10 +128,10 @@
 (defn run-query [team-id query]
   (let [response
         (client/post
-          (format "https://automation-staging.atomist.services/graphql/team/%s" team-id)
-          {:body             (json/json-str {:query query :variables []})
-           :headers          {:authorization (format "token %s" (-> @connection :response :jwt))}
-           :throw-exceptions false})]
+         (automation-url (format "/graphql/team/%s" team-id))
+         {:body             (json/json-str {:query query :variables []})
+          :headers          {:authorization (format "token %s" (-> @connection :response :jwt))}
+          :throw-exceptions false})]
     (if (= 200 (:status response))
       (-> response :body (json/read-str :key-fn keyword))
       (log/warnf "failure to run %s query %s\n%s" team-id query response))))
