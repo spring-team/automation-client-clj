@@ -5,7 +5,9 @@
 (defn with-restart
   "manage a reconnect semantics for some connection thingy
     params
-      create-fn - unary function "
+      create-fn  - CONNECT unary function
+      destroy-fn - DISCONNECT function (fn [channel])
+      send-fn    - notify automation client about new connection"
   [create-fn destroy-fn send-fn]
   (let [stop (async/chan)
         channel-closed (async/chan)

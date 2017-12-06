@@ -69,59 +69,75 @@
            first
            :value))
 
-(declare simple-message failed-status success-status)
-
-(def ^:private reg-socket nil)
+(declare simple-message failed-status success-status on-receive)
 
 (defn- connect-automation-api
   [channel-closed]
   (let [response (register)]
     (log/info "response " response)
 
-    (ws/connect
-      (:url response)
-      :on-receive (fn [msg]
-                    (let [o (json/read-str msg :key-fn keyword)]
-                      (if (:ping o)
-                        (ws/send-msg reg-socket (json/write-str {:pong (:ping o)}))
-                        (if (:data o)
-                          (do
-                            (log/info "Received events" (with-out-str (clojure.pprint/pprint o)))
-                            (registry/event-handler o))
-                          (do
-                            (log/info "Received commands:\n" (with-out-str (clojure.pprint/pprint (dissoc o :secrets))))
-                            (try
-                              (registry/command-handler o)
-                              (success-status o)
-                              (catch ExceptionInfo ex
-                                (simple-message o (.getMessage ex))
-                                (simple-message o (str "```" (with-out-str (clojure.pprint/pprint (ex-data ex))) "```"))
-                                (failed-status o))
-                              (catch Throwable t
-                                (log/error t (str "problem in processing the command loop" (.getMessage t)))
-                                (failed-status o))))))))
-      :on-error (fn [e] (log/error e "error processing websocket"))
-      :on-close (fn [code message]
-                  (log/warnf "websocket closing (%d):  %s" code message)
-                  (async/go (async/>! channel-closed :channel-closed))))))
+    {:response   response
+     :connection (ws/connect
+                   (:url response)
+                   :on-receive on-receive
+                   :on-error (fn [e] (log/error e "error processing websocket"))
+                   :on-close (fn [code message]
+                               (log/warnf "websocket closing (%d):  %s" code message)
+                               (async/go (async/>! channel-closed :channel-closed))))}))
 
-(defn- close-automation-api [conn]
+(defn- close-automation-api [{:keys [connection]}]
   (try
-    (ws/close conn)
+    (ws/close connection)
     (catch Throwable t (log/error t (.getMessage t)))))
 
-(defn- send-new-socket [socket]
+(def api-connection (atom nil))
+
+(defn- send-new-socket [{socket :connection {:keys [url jwt endpoints]} :response :as conn}]
   (log/info "updating current api websocket")
-  (alter-var-root #'reg-socket (constantly socket)))
+  (log/infof "endpoints:  %s" endpoints)
+  (log/infof "connected to %s" url)
+  (reset! api-connection conn))
+
+(defn- on-receive [msg]
+  (let [o (json/read-str msg :key-fn keyword)]
+    (if (:ping o)
+      (ws/send-msg (:connection @api-connection) (json/write-str {:pong (:ping o)}))
+      (if (:data o)
+        (do
+          (log/info "Received events" (with-out-str (clojure.pprint/pprint o)))
+          (registry/event-handler o))
+        (do
+          (log/info "Received commands:\n" (with-out-str (clojure.pprint/pprint (dissoc o :secrets))))
+          (try
+            (registry/command-handler o)
+            (success-status o)
+            (catch ExceptionInfo ex
+              (simple-message o (.getMessage ex))
+              (simple-message o (str "```" (with-out-str (clojure.pprint/pprint (ex-data ex))) "```"))
+              (failed-status o))
+            (catch Throwable t
+              (log/error t (str "problem in processing the command loop" (.getMessage t)))
+              (failed-status o))))))))
 
 (declare api-connection)
 (mount/defstate api-connection
                 :start (with-restart #'connect-automation-api #'close-automation-api #'send-new-socket)
                 :stop (async/>!! api-connection :stop))
 
+(defn run-query [team-id query]
+  (let [response
+        (client/post
+          (format "https://automation-staging.atomist.services/graphql/team/%s" team-id)
+          {:body             (json/json-str {:query query :variables []})
+           :headers          {:authorization (format "token %s" (-> @api-connection :response :jwt))}
+           :throw-exceptions false})]
+    (if (= 200 (:status response))
+      (-> response :body (json/read-str :key-fn keyword))
+      (log/warnf "failure to run %s query %s\n%s" team-id query response))))
+
 (defn- send-on-socket [x]
   (log/info "send-on-socket " x)
-  (ws/send-msg reg-socket (json/json-str x)))
+  (ws/send-msg (-> api-connection :connection) (json/json-str x)))
 
 (defn success-status [command]
   (-> (select-keys command [:corrid :correlation_context :users :channels])
