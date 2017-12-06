@@ -45,7 +45,6 @@
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [ring/ring-mock "0.3.0"]
                                   [environ "1.1.0"]
-                                  [clj-local-secrets "0.5.1"]
                                   [org.clojure/tools.nrepl      "0.2.12"]
                                   [org.clojure/tools.namespace "0.2.11"]]
                    :source-paths   ["env/dev/clj"]
