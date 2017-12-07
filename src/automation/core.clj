@@ -228,7 +228,7 @@
                                  (fn [action]
                                    (if (:rug action)
                                      (let [action-id (get-in action [:rug :id])
-                                           parameter_name (get-in action [:rug :parameter_name])]
+                                           parameter_name (get-in action [:rug :rug :parameter_name])]
                                        (case (:type action)
                                          "button"
                                          (-> action
