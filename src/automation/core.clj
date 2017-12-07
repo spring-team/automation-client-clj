@@ -237,7 +237,6 @@
                                              (assoc :value action-id))
                                          "select"
                                          (-> action
-                                             (assoc :parameter_name (or parameter_name ""))
                                              (dissoc :rug)
                                              (assoc :name (str "rug::" action-id)))
                                          action))
@@ -248,5 +247,7 @@
         (assoc :actions (->> (:attachments slack-with-action-ids)
                              (mapcat :actions)
                              (filter :rug)
+                             (map #(if-let [p (-> % :rug :rug :parameter_name)]
+                                     (assoc-in % [:rug :parameter_name]p ) %))
                              (mapv :rug)))
         (send-on-socket))))

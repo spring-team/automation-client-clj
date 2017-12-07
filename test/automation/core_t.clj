@@ -67,14 +67,18 @@
         (is (= [{:rug        {:type "command_handler"
                               :name "confirm-clean-team"
                               :parameter_name "some-param"}
+                 :parameter_name "some-param"
                  :parameters [{:name "team-name" :value "team-name"}]
-                 :id         "confirm-clean-team-1"}] (:actions message)))
+                 :id         "confirm-clean-team-1"}]
+               (:actions message))
+            "actions part of message is wrong")
+        ;; validate that the Message is right
         (is (= [{:text  "Select this"
                  :type  "select"
                  :name  "rug::confirm-clean-team-1"
-                 :parameter_name "some-param"
                  :options [{:text "Option1" :value "option1"}]}]
                (->> (json/read-str (:message message) :key-fn keyword)
                     :attachments
                     (mapcat :actions)
-                    (into []))))))))
+                    (into [])))
+            "Slack-specific part of message is wrong")))))
