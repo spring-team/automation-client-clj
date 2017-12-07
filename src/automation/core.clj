@@ -227,7 +227,8 @@
                                (mapv
                                  (fn [action]
                                    (if (:rug action)
-                                     (let [action-id (get-in action [:rug :id])]
+                                     (let [action-id (get-in action [:rug :id])
+                                           parameter_name (get-in action [:rug :parameter_name])]
                                        (case (:type action)
                                          "button"
                                          (-> action
@@ -236,6 +237,7 @@
                                              (assoc :value action-id))
                                          "select"
                                          (-> action
+                                             (assoc :parameter_name (or parameter_name ""))
                                              (dissoc :rug)
                                              (assoc :name (str "rug::" action-id)))
                                          action))
