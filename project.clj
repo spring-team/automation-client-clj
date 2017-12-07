@@ -1,4 +1,4 @@
-(defproject automation-api-clj "0.1.7-SNAPSHOT"
+(defproject automation-api-clj "0.1.7"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
