@@ -5,10 +5,10 @@
             [clojure.tools.logging :as log]))
 
 (mount/defstate env :start (load-config
-                             :merge
-                             [(mount/args)
-                              (source/from-system-props)
-                              (source/from-env)]))
+                            :merge
+                            [(mount/args)
+                             (source/from-system-props)
+                             (source/from-env)]))
 
 (defn get-config-value
   "Returns a value from the config service. Will init service is not already started."
@@ -16,5 +16,5 @@
   ([path default]
    (log/infof "get %s from env" (str path))
    (or
-     (get-in env path)
-     default)))
+    (get-in env path)
+    default)))
