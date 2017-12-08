@@ -54,19 +54,18 @@
                                        :callback_id "callbackid"
                                        :text        "make sure you've successfully de-authed the Atomista OAuth applications before continuing"
                                        :markdwn_in  ["text"]
-                                       :actions     [{:text  "Select this"
-                                                      :type  "select"
-                                                      :rug   {:rug        {:type "command_handler"
-                                                                           :name "confirm-clean-team"
-                                                                           :parameter_name "some-param"}
-                                                              :parameters [{:name "team-name" :value "team-name"}]}
+                                       :actions     [{:text    "Select this"
+                                                      :type    "select"
+                                                      :rug     {:rug            {:type "command_handler"
+                                                                                 :name "confirm-clean-team"}
+                                                                :parameter_name "some-param"
+                                                                :parameters     [{:name "team-name" :value "team-name"}]}
                                                       :options [{:text "Option1" :value "option1"}]
                                                       }]}]
                        :unfurl_links false
                        :unfurl_media false})]
         (is (= [{:rug        {:type "command_handler"
-                              :name "confirm-clean-team"
-                              :parameter_name "some-param"}
+                              :name "confirm-clean-team"}
                  :parameter_name "some-param"
                  :parameters [{:name "team-name" :value "team-name"}]
                  :id         "confirm-clean-team-1"}]
