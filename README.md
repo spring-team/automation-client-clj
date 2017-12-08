@@ -3,8 +3,12 @@
 We need a generator for this but clojure automation clients.  Latest version is:
 
 ```
-[automation-api-clj "0.1.0"]     ;; @ "https://sforzando.artifactoryonline.com/sforzando/libs-release-local
+[automation-api-clj "0.2.1"]     ;; https://atomist.jfrog.io/atomist/libs-release-local 
 ```
+
+### Getting started
+
+See our example project (link when it's open sourced in a minute)
 
 ### Usage
 
@@ -12,7 +16,7 @@ You'll need a `config.edn` file that looks like the following:
 
 ```
 {:domain       "prod.atomist.services."
- :team-id      {:value "T095SFFBK"}
+ :team-id      {:value "your_team_id"}
  :automation-namespaces ["fingerprints"]
  :name "fingerprints-clj"}
 ```
