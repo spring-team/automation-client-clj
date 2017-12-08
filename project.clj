@@ -50,6 +50,6 @@
                    :resource-paths ["env/dev/resources"]
                    :repl-options {:init-ns user}}}
 
-  :repositories [["releases" {:url      "https://atomist.jfrog.io/atomist/libs-release"
+  :repositories [["releases" {:url      "https://atomist.jfrog.io/atomist/libs-release-local"
                               :username [:gpg :env/artifactory_user]
                               :password [:gpg :env/artifactory_pwd]}]])
