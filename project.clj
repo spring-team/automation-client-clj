@@ -22,8 +22,7 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.1.7"]
                  [org.slf4j/slf4j-api "1.7.21"]
-                 [io.clj/logging "0.8.1"]
-                 ]
+                 [io.clj/logging "0.8.1"]]
 
   :plugins [[lein-environ "1.1.0"]
             [environ/environ.lein "0.3.1"]]
@@ -51,8 +50,7 @@
                    :resource-paths ["env/dev/resources"]
                    :repl-options {:init-ns user}}}
 
-  :repositories [
-                 ["releases" {:url      "https://sforzando.artifactoryonline.com/sforzando/libs-release-local"
+  :repositories [["releases" {:url      "https://sforzando.artifactoryonline.com/sforzando/libs-release-local"
                               :username [:gpg :env/artifactory_user]
                               :password [:gpg :env/artifactory_pwd]}]
                  ["plugins" {:url      "https://sforzando.artifactoryonline.com/sforzando/plugins-release"
