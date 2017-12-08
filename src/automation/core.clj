@@ -204,9 +204,9 @@
                   attachment :actions
                   (fn [actions]
                     (mapv (fn [action]
-                            (if (:rug action)
-                              (assoc-in action [:rug :id]
-                                        (str (get-in action [:rug :rug :name])
+                            (if (:command action)
+                              (assoc-in action [:command :id]
+                                        (str (get-in action [:command :rug :name])
                                              "-"
                                              (swap! num inc)))
                               action)) actions))))
@@ -226,18 +226,17 @@
                              (fn [actions]
                                (mapv
                                  (fn [action]
-                                   (if (:rug action)
-                                     (let [action-id (get-in action [:rug :id])
-                                           parameter_name (get-in action [:rug :rug :parameter_name])]
+                                   (if (:command action)
+                                     (let [action-id (get-in action [:command :id])]
                                        (case (:type action)
                                          "button"
                                          (-> action
-                                             (dissoc :rug)
+                                             (dissoc :command)
                                              (assoc :name "rug")
                                              (assoc :value action-id))
                                          "select"
                                          (-> action
-                                             (dissoc :rug)
+                                             (dissoc :command)
                                              (assoc :name (str "rug::" action-id)))
                                          action))
                                      action))
@@ -246,6 +245,6 @@
                    (json/json-str)))
         (assoc :actions (->> (:attachments slack-with-action-ids)
                              (mapcat :actions)
-                             (filter :rug)
-                             (mapv :rug)))
+                             (filter :command)
+                             (mapv :command)))
         (send-on-socket))))

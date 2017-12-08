@@ -14,14 +14,14 @@
                                      [{:callback_id "callbackid"
                                        :text        "make sure you've successfully de-authed the Atomista OAuth applications before continuing"
                                        :markdwn_in  ["text"]
-                                       :actions     [{:text  "Continue"
-                                                      :type  "button"
-                                                      :rug   {:rug        {:type "command_handler" :name "confirm-clean-team"}
-                                                              :parameters [{:name "team-name" :value "team-name"}]}}
-                                                     {:text  "Do something"
-                                                      :type  "button"
-                                                      :rug   {:rug        {:type "command_handler" :name "do-something"}
-                                                              :parameters [{:name "param" :value "val"}]}}]}]
+                                       :actions     [{:text    "Continue"
+                                                      :type    "button"
+                                                      :command {:rug        {:type "command_handler" :name "confirm-clean-team"}
+                                                                :parameters [{:name "team-name" :value "team-name"}]}}
+                                                     {:text    "Do something"
+                                                      :type    "button"
+                                                      :command {:rug        {:type "command_handler" :name "do-something"}
+                                                                :parameters [{:name "param" :value "val"}]}}]}]
                        :unfurl_links false
                        :unfurl_media false})]
         (is (= [{:rug        {:type "command_handler" :name "confirm-clean-team"}
@@ -56,7 +56,7 @@
                                        :markdwn_in  ["text"]
                                        :actions     [{:text    "Select this"
                                                       :type    "select"
-                                                      :rug     {:rug            {:type "command_handler"
+                                                      :command {:rug            {:type "command_handler"
                                                                                  :name "confirm-clean-team"}
                                                                 :parameter_name "some-param"
                                                                 :parameters     [{:name "team-name" :value "team-name"}]}
@@ -64,17 +64,17 @@
                                                       }]}]
                        :unfurl_links false
                        :unfurl_media false})]
-        (is (= [{:rug        {:type "command_handler"
-                              :name "confirm-clean-team"}
+        (is (= [{:rug            {:type "command_handler"
+                                  :name "confirm-clean-team"}
                  :parameter_name "some-param"
-                 :parameters [{:name "team-name" :value "team-name"}]
-                 :id         "confirm-clean-team-1"}]
+                 :parameters     [{:name "team-name" :value "team-name"}]
+                 :id             "confirm-clean-team-1"}]
                (:actions message))
             "actions part of message is wrong")
         ;; validate that the Message is right
-        (is (= [{:text  "Select this"
-                 :type  "select"
-                 :name  "rug::confirm-clean-team-1"
+        (is (= [{:text    "Select this"
+                 :type    "select"
+                 :name    "rug::confirm-clean-team-1"
                  :options [{:text "Option1" :value "option1"}]}]
                (->> (json/read-str (:message message) :key-fn keyword)
                     :attachments

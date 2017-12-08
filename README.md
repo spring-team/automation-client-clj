@@ -55,8 +55,7 @@ bot.
               :intent      ["hello clj"]
               :description "register a command"
               :secrets     ["github://user_token?scopes=repo"]
-              :parameters  [{:name "owner" :pattern ".*" :required true}
-                            {:name "repo" :pattern ".*" :required true}]}}
+              :parameters  [{:name "greeting" :pattern ".*" :required true}]}}
 
   handler-hello-clj
   [o]
@@ -105,8 +104,67 @@ that embed commands.  In this way, event handlers can make suggestions, or they 
 
 ### Simple Messages
 
-TODO:  talk about channels, and DMs here
+Whenever a command handler is called, the parameter sent to the handler will have data indicating what channel the
+message was sent from (here, channel can also mean direct message during a 1 on 1 conversation).  Calling the
+`simple-message` function will send a message to this channel.
+
+```
+(api/simple-message o "simple message") ;; this just responds in whatever channel the message came from
+```
+
+Addressing a message to other channels is also possible:
+
+```
+(api/simple-message (api/user "user-name") "eh!") ;; send a DM to a user - could be considered rude
+(api/simple-message (api/channel "repo-channel") "I have something to tell all of you") ;; send a DM to a channel
+```
 
 ### Actionable Messages
 
-TODO:  talk about how Actions bind to Commands
+Messages can also contain references to invocable things.  If you already have a command handler named
+"hello-github-commit", then you can send a message giving users a button to click on.  It's like putting
+a callback function into slack.
+
+```
+(api/actionable-message
+  o
+  {:text        "You might want to think about saying hello"
+   :attachments [{:text        "here's a button you can use to say hello"
+                  :actions     [{:text    "Say hello"
+                                 :type    "button"
+                                 :command {:rug            {:type "command_handler"
+                                                            :name "hello-github-commit")}
+                                           :parameters     [{:name "greeting" :value "HI!"}]}}]}]})
+```
+
+Most of the structure of this message is defined by [Slack Attachments][slack-attachments].  However, the `:command` in
+the action is an Atomist-specific addition.  It allows the Slack action to reference one of your command handlers, and
+it allows the message to partially apply some parameters to the command handler.  The parameter list can be empty.
+An empty parameter list just means that the bot will have to ask more questions (if the reference command handlers has
+required parameters).
+
+[slack-messages]: "https://api.slack.com/docs/message-attachments"
+
+You can create messages that have _lots_ of buttons actually.  Slack has some limitations on the number of actions per
+attachment and on the number of attachments per message.
+
+You can also add drop-down menus to your messages.  Selected values in these drop-downs can then become parameters
+passed to your handler.
+
+```
+(api/actionable-message
+  o
+  {:text        "You might want to think about saying hello"
+   :attachments [{:text        "here are some choices"
+                  :actions     [{:text    "Say hello"
+                                 :type    "rug"
+                                 :options [{:text "say Hi" :value "Hi"}
+                                           {:text "say Yo" :value "Yo"}]
+                                 :command {:rug            {:type "command_handler"
+                                                            :name "hello-github-commit")}
+                                           :parameter_name "greeting"
+                                           :parameters     []}}]}]})
+```
+
+
+
