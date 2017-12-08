@@ -130,7 +130,7 @@
         (client/post
          (automation-url (format "/graphql/team/%s" team-id))
          {:body             (json/json-str {:query query :variables []})
-          :headers          {:authorization (format "token %s" (-> @connection :response :jwt))}
+          :headers          {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
           :throw-exceptions false})]
     (if (= 200 (:status response))
       (-> response :body (json/read-str :key-fn keyword))
