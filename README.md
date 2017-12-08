@@ -98,3 +98,15 @@ The `subscription` is a graphql query that allows you to query for data coming f
 We love graphql for this because the schema grows as your team configures more webhooks, or pushes more data to
 ingestion points.  You create these queries in the Atomist dashboard for your team.
 
+Command and Event handlers work together because event handlers can either run commands, or they can send messages
+that embed commands.  In this way, event handlers can make suggestions, or they can directly take action.
+
+## Bot Messages
+
+### Simple Messages
+
+TODO:  talk about channels, and DMs here
+
+### Actionable Messages
+
+TODO:  talk about how Actions bind to Commands
