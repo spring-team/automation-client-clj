@@ -1,6 +1,6 @@
-(defproject automation-api-clj "0.1.10-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject automation-api-clj "0.2.0-SNAPSHOT"
+  :description "Atomist automation client implementation in Clojure"
+  :url "http://example.com/FIXM://github.com/atomisthq/automation-api-clj"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
@@ -50,9 +50,6 @@
                    :resource-paths ["env/dev/resources"]
                    :repl-options {:init-ns user}}}
 
-  :repositories [["releases" {:url      "https://sforzando.artifactoryonline.com/sforzando/libs-release-local"
+  :repositories [["releases" {:url      "https://atomist.jfrog.io/atomist/libs-release"
                               :username [:gpg :env/artifactory_user]
-                              :password [:gpg :env/artifactory_pwd]}]
-                 ["plugins" {:url      "https://sforzando.artifactoryonline.com/sforzando/plugins-release"
-                             :username [:gpg :env/artifactory_user]
-                             :password [:gpg :env/artifactory_pwd]}]])
+                              :password [:gpg :env/artifactory_pwd]}]])
