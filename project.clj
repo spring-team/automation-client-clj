@@ -8,7 +8,7 @@
 
                  ;; websocket
                  [org.clojure/data.json        "0.2.6"]
-                 [clj-http                     "3.3.0"]
+                 [clj-http                     "3.7.0"]
                  [stylefruits/gniazdo "1.0.1"]
 
                  ;; util
