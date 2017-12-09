@@ -17,21 +17,31 @@ You'll need a `config.edn` file that defines at least 3 things:
 ```
 {:team-id "your_team_id"
  :automation-namespaces ["fingerprints"]
- :name "fingerprints-clj"}
+ :name "fingerprints-clj"
+ :github-token "xxxxxxxxxxxxxx"}
 ```
 
-* The `:team-id` is your Atomist team identifier.  (TODO:  they still get this from the bot enrollment today.  link?)
+* The `:team-id` is your Atomist team identifier.
 * The `:name` should be something unique to identify this 'automation client'.
 * The automation namespaces refer to the symbol names of namespaces that may contain handlers.  We will scan these
   namespaces for metadata on function vars when the automation client first starts up.
+* You can use a GitHub personal token to authenticate with Atomist.  You can also set the an environment variable
+  GITHUB_TOKEN, and leave `:github-token` out of the above config.edn file.
 
-You can start up the automation client using in a repl using:
+You can start up the automation client in a repl using:
 
 ```
 (require '[automation.core])
 (require '[mount.core :as mount]'
 (mount/start)
 ```
+
+You can also clone and try a [sample automation here][sample].  This currently requires that you have created
+an Atomist account and enrolled our bot in your slack team.
+
+TODO:  we need a link to setting up the Atomist account
+
+[sample]: https://github.com/atomisthq/clj-fingerprint-automation
 
 ## Handlers
 
@@ -51,20 +61,19 @@ bot.
   (:require [automation.core :as api]))
 
 (defn
-  ^{:command {:name        "hello-clj"
-              :intent      ["hello clj"]
-              :description "register a command"
-              :secrets     ["github://user_token?scopes=repo"]
-              :parameters  [{:name "greeting" :pattern ".*" :required true}]}}
-
-  handler-hello-clj
+  ^{:command {:name         "HelloClojureWorld"
+              :description  "Cheerful greetings"
+              :intent      ["hello world"]
+              :parameters   [{:name "username" :pattern ".*" :required true}]}}
+  hello-clojure-world
+  "A very simple handler that responds to `@atomist hello world` asks the user in a thread for a username
+   then responds `hello $username!`"
   [o]
-  (api/simple-message o (format "for %s/%s, ignore standard build config"
-                                (api/get-parameter-value o "owner")
-                                (api/get-parameter-value o "repo"))))
+  (let [user (api/get-parameter-value o "username")]
+    (api/simple-message o (format "Hello %s!" user))))
 ```
 
-The `:intent` means that you can now say `@atomist hello clj` wherever your bot has been invited.  Your handler
+The `:intent` means that you can now say `@atomist hello world` wherever your bot has been invited.  Your handler
 function will be delivered parameters, mapped_parameters, and secrets.
 
 ### Events
@@ -134,8 +143,8 @@ a callback function into slack.
                   :actions     [{:text    "Say hello"
                                  :type    "button"
                                  :command {:rug            {:type "command_handler"
-                                                            :name "hello-github-commit")}
-                                           :parameters     [{:name "greeting" :value "HI!"}]}}]}]})
+                                                            :name "HelloClojureWorld")}
+                                           :parameters     [{:name "username" :value "Ben"}]}}]}]})
 ```
 
 Most of the structure of this message is defined by [Slack Attachments][slack-attachments].  However, the `:command` in
@@ -160,11 +169,11 @@ passed to your handler.
                   :callback_id "random-id"
                   :actions     [{:text    "Say hello"
                                  :type    "select"
-                                 :options [{:text "say Hi" :value "Hi"}
-                                           {:text "say Yo" :value "Yo"}]
+                                 :options [{:text "say Hi to Ben" :value "Ben"}
+                                           {:text "say Hi to Jim" :value "Jim"}]
                                  :command {:rug            {:type "command_handler"
-                                                            :name "hello-github-commit")}
-                                           :parameter_name "greeting"
+                                                            :name "HelloClojureWorld")}
+                                           :parameter_name "username"
                                            :parameters     []}}]}]})
 ```
 
