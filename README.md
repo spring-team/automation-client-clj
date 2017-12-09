@@ -157,7 +157,7 @@ passed to your handler.
   {:text        "You might want to think about saying hello"
    :attachments [{:text        "here are some choices"
                   :actions     [{:text    "Say hello"
-                                 :type    "rug"
+                                 :type    "select"
                                  :options [{:text "say Hi" :value "Hi"}
                                            {:text "say Yo" :value "Yo"}]
                                  :command {:rug            {:type "command_handler"

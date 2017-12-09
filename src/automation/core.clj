@@ -204,9 +204,9 @@
                   attachment :actions
                   (fn [actions]
                     (mapv (fn [action]
-                            (if (:command action)
-                              (assoc-in action [:command :id]
-                                        (str (get-in action [:command :rug :name])
+                            (if (:atomist/command action)
+                              (assoc-in action [:atomist/command :id]
+                                        (str (get-in action [:atomist/command :rug :name])
                                              "-"
                                              (swap! num inc)))
                               action)) actions))))
@@ -226,17 +226,17 @@
                              (fn [actions]
                                (mapv
                                  (fn [action]
-                                   (if (:command action)
-                                     (let [action-id (get-in action [:command :id])]
+                                   (if (:atomist/command action)
+                                     (let [action-id (get-in action [:atomist/command :id])]
                                        (case (:type action)
                                          "button"
                                          (-> action
-                                             (dissoc :command)
+                                             (dissoc :atomist/command)
                                              (assoc :name "rug")
                                              (assoc :value action-id))
                                          "select"
                                          (-> action
-                                             (dissoc :command)
+                                             (dissoc :atomist/command)
                                              (assoc :name (str "rug::" action-id)))
                                          action))
                                      action))
@@ -245,6 +245,6 @@
                    (json/json-str)))
         (assoc :actions (->> (:attachments slack-with-action-ids)
                              (mapcat :actions)
-                             (filter :command)
-                             (mapv :command)))
+                             (filter :atomist/command)
+                             (mapv :atomist/command)))
         (send-on-socket))))

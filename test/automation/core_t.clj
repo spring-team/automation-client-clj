@@ -14,14 +14,14 @@
                                      [{:callback_id "callbackid"
                                        :text        "make sure you've successfully de-authed the Atomista OAuth applications before continuing"
                                        :markdwn_in  ["text"]
-                                       :actions     [{:text    "Continue"
-                                                      :type    "button"
-                                                      :command {:rug        {:type "command_handler" :name "confirm-clean-team"}
-                                                                :parameters [{:name "team-name" :value "team-name"}]}}
-                                                     {:text    "Do something"
-                                                      :type    "button"
-                                                      :command {:rug        {:type "command_handler" :name "do-something"}
-                                                                :parameters [{:name "param" :value "val"}]}}]}]
+                                       :actions     [{:text            "Continue"
+                                                      :type            "button"
+                                                      :atomist/command {:rug        {:type "command_handler" :name "confirm-clean-team"}
+                                                                        :parameters [{:name "team-name" :value "team-name"}]}}
+                                                     {:text            "Do something"
+                                                      :type            "button"
+                                                      :atomist/command {:rug        {:type "command_handler" :name "do-something"}
+                                                                        :parameters [{:name "param" :value "val"}]}}]}]
                        :unfurl_links false
                        :unfurl_media false})]
         (is (= [{:rug        {:type "command_handler" :name "confirm-clean-team"}
@@ -54,13 +54,13 @@
                                        :callback_id "callbackid"
                                        :text        "make sure you've successfully de-authed the Atomista OAuth applications before continuing"
                                        :markdwn_in  ["text"]
-                                       :actions     [{:text    "Select this"
-                                                      :type    "select"
-                                                      :command {:rug            {:type "command_handler"
-                                                                                 :name "confirm-clean-team"}
-                                                                :parameter_name "some-param"
-                                                                :parameters     [{:name "team-name" :value "team-name"}]}
-                                                      :options [{:text "Option1" :value "option1"}]
+                                       :actions     [{:text            "Select this"
+                                                      :type            "select"
+                                                      :atomist/command {:rug            {:type "command_handler"
+                                                                                         :name "confirm-clean-team"}
+                                                                        :parameter_name "some-param"
+                                                                        :parameters     [{:name "team-name" :value "team-name"}]}
+                                                      :options         [{:text "Option1" :value "option1"}]
                                                       }]}]
                        :unfurl_links false
                        :unfurl_media false})]
