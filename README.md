@@ -15,7 +15,7 @@ See our example project (link when it's open sourced in a minute)
 You'll need a `config.edn` file that defines at least 3 things:
 
 ```
-{:team-id      {:value "your_team_id"}
+{:team-id "your_team_id"
  :automation-namespaces ["fingerprints"]
  :name "fingerprints-clj"}
 ```
@@ -130,6 +130,7 @@ a callback function into slack.
   o
   {:text        "You might want to think about saying hello"
    :attachments [{:text        "here's a button you can use to say hello"
+                  :callback_id "random-id"
                   :actions     [{:text    "Say hello"
                                  :type    "button"
                                  :command {:rug            {:type "command_handler"
@@ -156,6 +157,7 @@ passed to your handler.
   o
   {:text        "You might want to think about saying hello"
    :attachments [{:text        "here are some choices"
+                  :callback_id "random-id"
                   :actions     [{:text    "Say hello"
                                  :type    "select"
                                  :options [{:text "say Hi" :value "Hi"}

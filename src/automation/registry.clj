@@ -12,7 +12,7 @@
                (str (cs/get-config-value [:name]) "-" (System/getenv "USER"))
                (cs/get-config-value [:name]))
    :version  "1.0.0"
-   :team_id  (:value (cs/get-config-value [:team-id]))
+   :team_id  (cs/get-config-value [:team-id])
    :commands (or (:commands @registry) [])
    :events   (or (:events @registry) [])})
 
