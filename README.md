@@ -14,7 +14,7 @@ See our example project (link when it's open sourced in a minute)
 
 You'll need a `config.edn` file that defines at least 3 things:
 
-```
+```clj
 {:team-id "your_team_id"
  :automation-namespaces ["fingerprints"]
  :name "fingerprints-clj"
@@ -30,18 +30,17 @@ You'll need a `config.edn` file that defines at least 3 things:
 
 You can start up the automation client in a repl using:
 
-```
+```clj
 (require '[automation.core])
 (require '[mount.core :as mount]'
 (mount/start)
 ```
 
 You can also clone and try a [sample automation here][sample].  This currently requires that you have created
-an Atomist account and enrolled our bot in your slack team.
-
-TODO:  we need a link to setting up the Atomist account
+an Atomist account and [enrolled our bot in your slack team][enroll-docs].
 
 [sample]: https://github.com/atomisthq/clj-fingerprint-automation
+[enroll-docs]: https://docs.atomist.com/user/
 
 ## Handlers
 
@@ -56,7 +55,7 @@ request events.  This is perfect for chatops use cases.  For example, if your te
 to your slack team, then a Command Handler definition automatically becomes a new command that you can send to your
 bot.
 
-```
+```clj
 (ns fingerprints
   (:require [automation.core :as api]))
 
@@ -80,7 +79,7 @@ function will be delivered parameters, mapped_parameters, and secrets.
 
 These are way more important than Commands.
 
-```
+```clj
 (ns fingerprints
   (:require [automation.core :as api]))
 
@@ -117,7 +116,7 @@ Whenever a command handler is called, the parameter sent to the handler will hav
 message was sent from (here, channel can also mean direct message during a 1 on 1 conversation).  Calling the
 `simple-message` function will send a message to this channel.
 
-```
+```clj
 (api/simple-message o "simple message") ;; this just responds in whatever channel the message came from
 ```
 
@@ -134,7 +133,7 @@ Messages can also contain references to invocable things.  If you already have a
 "hello-github-commit", then you can send a message giving users a button to click on.  It's like putting
 a callback function into slack.
 
-```
+```clj
 (api/actionable-message
   o
   {:text        "You might want to think about saying hello"
@@ -161,7 +160,7 @@ attachment and on the number of attachments per message.
 You can also add drop-down menus to your messages.  Selected values in these drop-downs can then become parameters
 passed to your handler.
 
-```
+```clj
 (api/actionable-message
   o
   {:text        "You might want to think about saying hello"
