@@ -122,7 +122,7 @@ message was sent from (here, channel can also mean direct message during a 1 on 
 
 Addressing a message to other channels is also possible:
 
-```
+```clj
 (api/simple-message (api/user "user-name") "eh!") ;; send a DM to a user - could be considered rude
 (api/simple-message (api/channel "repo-channel") "I have something to tell all of you") ;; send a DM to a channel
 ```
