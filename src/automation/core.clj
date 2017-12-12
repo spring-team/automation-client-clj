@@ -192,7 +192,7 @@
        command - incoming Command Request data
        slack   - slack Message data where all actions may refer to
                  other CommandHandlers"
-  [command slack]
+  [command slack & [opts]]
   (let [num (atom 0)
         slack-with-action-ids
         (update-when-seq
@@ -213,6 +213,7 @@
               attachments)))]
 
     (-> (select-keys command [:corrid :correlation_context :users :channels])
+        (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
         (assoc :message
                (-> slack-with-action-ids
