@@ -1,10 +1,6 @@
 ## Running an Automation Client
 
-We need a generator for this but clojure automation clients.  Latest version is:
-
-```
-[automation-api-clj "0.2.1"]     ;; https://atomist.jfrog.io/atomist/libs-release-local 
-```
+[![Clojars Project](https://img.shields.io/clojars/v/atomist/automation-api-clj.svg)](https://clojars.org/atomist/automation-api-clj)
 
 ### Getting started
 
