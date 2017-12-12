@@ -125,7 +125,7 @@ Addressing a message to other channels is also possible:
 
 ### Actionable Messages
 
-Messages can also contain references to invocable things.  If you already have a command handler named
+Messages can also contain references to invokable things.  If you already have a command handler named
 "hello-github-commit", then you can send a message giving users a button to click on.  It's like putting
 a callback function into slack.
 
@@ -171,6 +171,3 @@ passed to your handler.
                                            :parameter_name "username"
                                            :parameters     []}}]}]})
 ```
-
-
-
