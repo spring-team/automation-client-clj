@@ -2,7 +2,7 @@
 
 ## [0.1.0][] - 2017-12-12
 
-[0.1.0]: https://github.com/atomist/lifecycle-automation/tree/0.1.0
+[0.1.0]: https://github.com/atomisthq/automation-client-clj/tree/0.1.0
 
 Initial Release
 
