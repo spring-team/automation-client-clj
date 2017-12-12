@@ -1,6 +1,6 @@
-(defproject automation-api-clj "0.2.6-SNAPSHOT"
+(defproject atomist/automation-api-clj "0.3.0-SNAPSHOT"
   :description "Atomist automation client implementation in Clojure"
-  :url "http://example.com/FIXM://github.com/atomisthq/automation-api-clj"
+  :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
@@ -31,15 +31,7 @@
 
   :vcs :git
 
-  :release-tasks [["vcs" "assert-committed"]
-                  ["change" "version"
-                   "leiningen.release/bump-version" "release"]
-                  ["vcs" "commit"]
-                  ["vcs" "tag" "--no-sign"]
-                  ["deploy" "releases"]
-                  ["change" "version" "leiningen.release/bump-version"]
-                  ["vcs" "commit"]
-                  ["vcs" "push"]]
+  :lein-release {:deploy-via :clojars}
 
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [ring/ring-mock "0.3.0"]
@@ -48,8 +40,4 @@
                                   [org.clojure/tools.namespace "0.2.11"]]
                    :source-paths   ["env/dev/clj"]
                    :resource-paths ["env/dev/resources"]
-                   :repl-options {:init-ns user}}}
-
-  :repositories [["releases" {:url      "https://atomist.jfrog.io/atomist/libs-release-local"
-                              :username [:gpg :env/artifactory_user]
-                              :password [:gpg :env/artifactory_pwd]}]])
+                   :repl-options {:init-ns user}}})
