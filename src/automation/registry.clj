@@ -1,6 +1,6 @@
 (ns automation.registry
   (:require [clojure.tools.logging :as log]
-            [config-service.core :as cs]
+            [automation.config-service :as cs]
             [com.rpl.specter :refer [transform setval walker ALL NONE pred pred= setval END select FIRST]]
             [mount.core :as mount]))
 

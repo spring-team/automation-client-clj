@@ -3,7 +3,7 @@
             [mount.core :as mount]
             [clojure.data.json :as json]
             [clj-http.client :as client]
-            [config-service.core :as cs]
+            [automation.config-service :as cs]
             [clojure.tools.logging :as log]
             [automation.registry :as registry]
             [clojure.core.async :as async]
