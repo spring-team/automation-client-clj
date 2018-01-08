@@ -47,8 +47,7 @@
                       :headers        {:authorization auth-header}
                       :socket-timeout 10000
                       :conn-timeout   5000
-                      :accept         :json
-                      })
+                      :accept         :json})
         :body
         (json/read-str :key-fn keyword))))
 
@@ -79,12 +78,12 @@
 
     {:response   response
      :connection (ws/connect
-                   (:url response)
-                   :on-receive on-receive
-                   :on-error (fn [e] (log/error e "error processing websocket"))
-                   :on-close (fn [code message]
-                               (log/warnf "websocket closing (%d):  %s" code message)
-                               (async/go (async/>! channel-closed :channel-closed))))}))
+                  (:url response)
+                  :on-receive on-receive
+                  :on-error (fn [e] (log/error e "error processing websocket"))
+                  :on-close (fn [code message]
+                              (log/warnf "websocket closing (%d):  %s" code message)
+                              (async/go (async/>! channel-closed :channel-closed))))}))
 
 (defn- close-automation-api [{:keys [connection]}]
   (try
@@ -122,8 +121,8 @@
 
 (declare api-connection)
 (mount/defstate api-connection
-                :start (with-restart #'connect-automation-api #'close-automation-api #'send-new-socket)
-                :stop (async/>!! api-connection :stop))
+  :start (with-restart #'connect-automation-api #'close-automation-api #'send-new-socket)
+  :stop (async/>!! api-connection :stop))
 
 (defn run-query [team-id query]
   (let [response
@@ -196,21 +195,21 @@
   (let [num (atom 0)
         slack-with-action-ids
         (update-when-seq
-          slack :attachments
-          (fn [attachments]
-            (mapv
-              (fn [attachment]
-                (update-when-seq
-                  attachment :actions
-                  (fn [actions]
-                    (mapv (fn [action]
-                            (if (:atomist/command action)
-                              (assoc-in action [:atomist/command :id]
-                                        (str (get-in action [:atomist/command :rug :name])
-                                             "-"
-                                             (swap! num inc)))
-                              action)) actions))))
-              attachments)))]
+         slack :attachments
+         (fn [attachments]
+           (mapv
+            (fn [attachment]
+              (update-when-seq
+               attachment :actions
+               (fn [actions]
+                 (mapv (fn [action]
+                         (if (:atomist/command action)
+                           (assoc-in action [:atomist/command :id]
+                                     (str (get-in action [:atomist/command :rug :name])
+                                          "-"
+                                          (swap! num inc)))
+                           action)) actions))))
+            attachments)))]
 
     (-> (select-keys command [:corrid :correlation_context :users :channels])
         (merge opts)
@@ -218,31 +217,31 @@
         (assoc :message
                (-> slack-with-action-ids
                    (update-when-seq
-                     :attachments
-                     (fn [attachments]
-                       (mapv
-                         (fn [attachment]
-                           (update-when-seq
-                             attachment :actions
-                             (fn [actions]
-                               (mapv
-                                 (fn [action]
-                                   (if (:atomist/command action)
-                                     (let [action-id (get-in action [:atomist/command :id])]
-                                       (case (:type action)
-                                         "button"
-                                         (-> action
-                                             (dissoc :atomist/command)
-                                             (assoc :name "rug")
-                                             (assoc :value action-id))
-                                         "select"
-                                         (-> action
-                                             (dissoc :atomist/command)
-                                             (assoc :name (str "rug::" action-id)))
-                                         action))
+                    :attachments
+                    (fn [attachments]
+                      (mapv
+                       (fn [attachment]
+                         (update-when-seq
+                          attachment :actions
+                          (fn [actions]
+                            (mapv
+                             (fn [action]
+                               (if (:atomist/command action)
+                                 (let [action-id (get-in action [:atomist/command :id])]
+                                   (case (:type action)
+                                     "button"
+                                     (-> action
+                                         (dissoc :atomist/command)
+                                         (assoc :name "rug")
+                                         (assoc :value action-id))
+                                     "select"
+                                     (-> action
+                                         (dissoc :atomist/command)
+                                         (assoc :name (str "rug::" action-id)))
                                      action))
-                                 actions))))
-                         attachments)))
+                                 action))
+                             actions))))
+                       attachments)))
                    (json/json-str)))
         (assoc :actions (->> (:attachments slack-with-action-ids)
                              (mapcat :actions)
