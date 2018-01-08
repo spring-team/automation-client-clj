@@ -11,7 +11,7 @@
   {:name     (if (cs/get-config-value [:dev-mode] false)
                (str (cs/get-config-value [:name]) "-" (System/getenv "USER"))
                (cs/get-config-value [:name]))
-   :version  "1.0.0"
+   :version  (cs/get-config-value [(keyword (cs/get-config-value [:version-property]))] "0.0.1-SNAPSHOT")
    :team_id  (cs/get-config-value [:team-id])
    :commands (or (:commands @registry) [])
    :events   (or (:events @registry) [])})
