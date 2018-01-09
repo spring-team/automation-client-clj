@@ -1,4 +1,4 @@
-(defproject com.atomist/automation-api-clj "0.3.6"
+(defproject com.atomist/automation-client-clj "0.3.6-SNAPSHOT"
   :description "Atomist automation client implementation in Clojure"
   :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"
@@ -34,7 +34,7 @@
   :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
                                     :username :env/clojars_username
                                     :password :env/clojars_password
-                                    :sign-releases true}]]
+                                    :sign-releases false}]]
 
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [ring/ring-mock "0.3.0"]
