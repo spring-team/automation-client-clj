@@ -14,7 +14,7 @@ lein do clean, test, jar
 
 echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
 echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}"
-
+unset CLASSPATH
 if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     lein release
 fi
