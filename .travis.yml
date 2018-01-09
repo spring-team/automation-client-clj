@@ -2,9 +2,9 @@ language: clojure
 env:
   global:
   - secure: dM4l6Ux6mV07nXEH017ScYfXwSESXSxpuMv8MHJ/UEr5c0bTEPDib7TSKoE9WgKfrcI6XRTan70IZJS/gGaDaX49FmNyUJukwaT08dW2VH8+mg0M+YKktXqYBDPnGMTpsxBAKB7+TlNY5U0X7v2mzhVMlvKBmDscv538ZofvhhSoxzA3PEh345kx2mNSBFOQ7hwnzPY/s+G8bYqOqhijiAUtMerrjq2y6DUrKo6yCGiXHd/l8JGELAGLFrEuTD2IZ6pWAHpoZOCcvTWCc//d9biPxr6JzPTMDbr0BKjFccIa1kv6u5Tz5LCJXfBGsCawrfVQ/aDJV+0VBm+0vNG9maC7gBqEmcoHMeK3aqxx3Eydbd4gehE6X9JuYYERExUjRQSjoJK+P7nRimH7fpGDHB3htKLijGLzzDlYHMD+QS6CPVgDczs2tf20eSshfSLy2JH82FsZSqQrYJyWGbvG7PzYVoz+pebZk20wPTNwFn1mh16cezHOXfKNrFkFWyeFgDuaS0nDs1/AsfogUHbyfuAQVl/Uz92sokYMl2sHA5UKAD9viwg1HD+7FirUkfUfIlLo9NIK8U4RmjxFf4+GNOgZ+LLV0RH/1lm21ucBexzVNyDKTjrpLd2UExjiXqsdfR/74ARLHCoINyNlctrhrC5wlJQf11S9xfuWMMPkgyQ=
-  - secure: RBBq64qxiqaXwdONTvP+e18+lb+9oAKG0tJhVk1+sYv0zDg5+0J9YOZCPmlSdlTNEp92HLdMmAVxq3MwtuSALe2PCvQ4MqaQjhldex2N3bWctyEwhGgpTnFa1t39dfqCIt4TQUoCjXbwxwBt765q+Ld5m6NjTCcWpx/kpmqu4YR77o/+nW8xTsee4RYSBElZSQesk+8+0/XmUkbwiL3Dg1u4QzgCF5O/5vyofat7jTmztOCKXXIdqK8xQocEKIpSQP1cpS5Ie6E4Kp1w2xoFmdGtmgAvW4qXiAzO0a3DW+wZ43hYess3h8eALxD0UJym5EfzxQyI3lv9XwV/5y7Tivytn93UCc23NhoI2TaoYTxLFBFwX9ILUv0D7ws7uBw3tUFyTVBwfxh7/7Q1xrAMwutXnwEhc5IvNtkvi28L7scZtTW+AEJXM35tojuHXgpSVFy1TfpuD3jpJTMNYd4zQPpGCvXegI+NB0y2mENzLoqVfuy2IVS3wqzKPhkJ+5pxP/NpQSPm6AE7nKF0YLqMWHyVgYwo8XJ/Yzo5YTLfupQvwvmDcA+seCZCpn+Yo5TOXntGalYIp9/chtjk7JymF1KSaMPs/OGTWD8r/m7p+G+uM64u8TXAxIzuhf9y1PrQVD2Rfj+xLmw9AxoRGykPfdBsO+FMPRedR1Hl7k2F0T4=
+  - secure: hKG1tBe618b8XvUEEEJzcDoH/Ofv1GyKAjWDVYl/osZ18yKN2dUaOM6m5QN0EFmtdQbiQ/5sFEeroyGp85MucZA6S2fJlYteMIuv0WuDqSh26AitSN3gC7sWzg1HHZyRbADer/Qjp1PYMESI/lq30jBatDmg+XYwkfuS5QFfevkTktbxl6hVW583uDPBuzNiA9o9C7wea640bdBCjnmN/1rJULa7wGc+lnNEOHALFETJLJSz8owYx/vCXhCd3Ds337Rt6dmcyoQZja+F+GtUHqKfuCI9bPM3gJriAvf/w5ayU1Xm89WW53idZZEF6k6rCWqNLfgciLduIhhXPYMtnPkWD8FN/jls8SLMejr6/Eo5PFZs8iZo4OMrxvTm3LZ9+KbTI+YCaX9M/ljbbYkYLudkovR9In4mXhGC+2ehHrpMPKNIpu7cnGH31Zfo04Bpi7hd3Lkv9yR1Hix4/iKkGaTMxjJZsW59pVuF8yJlfGCYMyF32OSnOl0MDjGsWMNTO2VadZAzb8kzcnDfZ7PdRsm/3SsEK4M+qcmNhiUHyfVyDGmnPnqN8mVvUODQySV1TcVxSYsuNlVcYiRDCstmkirfJZw+QWazYfuPPQ4xYAz7ydAUXYnnVgmEIImMOBCiEJ1TsnTKySXkJK1ZeYKTCNyW4f6A45/7d8xC/DigKRM=
 sudo: required
-script: ./travis-build.sh
+script: "./travis-build.sh"
 jdk:
 - oraclejdk8
 notifications:
@@ -17,9 +17,9 @@ notifications:
     - https://webhook.atomist.com/travis
 branches:
   except:
-  - /^\d+\.\d+\.\d+.*$/
+  - "/^\\d+\\.\\d+\\.\\d+.*$/"
 services:
 - docker
 cache:
   directories:
-  - $HOME/.m2
+  - "$HOME/.m2"
