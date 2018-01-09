@@ -14,7 +14,6 @@ lein do clean, test, jar
 
 echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
 echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}"
-echo "ARTIFACTORY_USER:" ${ARTIFACTORY_USER}
 
 if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     lein release
