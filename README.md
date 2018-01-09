@@ -1,7 +1,7 @@
 ## Running an Automation Client
 
 [![Clojars Project](https://img.shields.io/clojars/v/atomist/automation-api-clj.svg)](https://clojars.org/atomist/automation-api-clj)
-
+[![Build Status](https://travis-ci.org/atomisthq/automation-client-clj.svg?branch=master)](https://travis-ci.org/atomisthq/automation-client-clj)
 ### Getting started
 
 See our example project (link when it's open sourced in a minute)
