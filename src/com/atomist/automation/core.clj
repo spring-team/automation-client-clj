@@ -131,7 +131,7 @@
          {:body             (json/json-str {:query query :variables []})
           :headers          {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
           :throw-exceptions false})]
-    (if (= 200 (:status response))
+    (if (and (not (:errors response)) (= 200 (:status response)))
       (-> response :body (json/read-str :key-fn keyword))
       (log/warnf "failure to run %s query %s\n%s" team-id query response))))
 
