@@ -27,7 +27,7 @@ You'll need a `config.edn` file that defines at least 3 things:
 You can start up the automation client in a repl using:
 
 ```clj
-(require '[automation.core])
+(require '[com.atomist/automation.core])
 (require '[mount.core :as mount]'
 (mount/start)
 ```
@@ -53,7 +53,7 @@ bot.
 
 ```clj
 (ns fingerprints
-  (:require [automation.core :as api]))
+  (:require [com.atomist/automation.core :as api]))
 
 (defn
   ^{:command {:name         "HelloClojureWorld"
@@ -77,7 +77,7 @@ These are way more important than Commands.
 
 ```clj
 (ns fingerprints
-  (:require [automation.core :as api]))
+  (:require [com.atomist/automation.core :as api]))
 
 (defn
   ^{:event   {:name        "hello-github-commit"
@@ -171,3 +171,9 @@ passed to your handler.
                                            :parameter_name "username"
                                            :parameters     []}}]}]})
 ```
+
+### Releasing
+
+- Every commit to master results in a SNAPSHOT being built and published to Clojars
+- Create a semver tag to do a proper release to Clojars - it must match the numerical part of the project version
+(i.e. without the -SNAPSHOT)

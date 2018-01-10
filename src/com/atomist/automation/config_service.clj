@@ -1,4 +1,4 @@
-(ns automation.config-service
+(ns com.atomist.automation.config-service
   (:require [cprop.core :refer [load-config]]
             [cprop.source :as source]
             [mount.core :as mount]

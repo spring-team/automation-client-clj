@@ -1,12 +1,12 @@
-(ns automation.core-t
-  (:require [automation.core :refer :all]
+(ns com.atomist.automation.core-t
+  (:require [com.atomist.automation.core :refer :all]
             [clojure.test :refer :all]
             [clojure.data.json :as json]))
 
 (deftest actionable-message-tests
   (testing "Message with button"
-    (with-redefs [automation.core/send-on-socket (fn [m] m)
-                  automation.core/guid (fn [] "")]
+    (with-redefs [com.atomist.automation.core/send-on-socket (fn [m] m)
+                  com.atomist.automation.core/guid (fn [] "")]
       (let [message (actionable-message
                      {:corrid "corrid" :correlation_context "correlation_context" :wrong "wrong"}
                      {:text         ""
@@ -44,8 +44,8 @@
                     (into [])))))))
 
   (testing "Message with menu"
-    (with-redefs [automation.core/send-on-socket (fn [m] m)
-                  automation.core/guid (fn [] "")]
+    (with-redefs [com.atomist.automation.core/send-on-socket (fn [m] m)
+                  com.atomist.automation.core/guid (fn [] "")]
       (let [message (actionable-message
                      {:corrid "corrid" :correlation_context "correlation_context" :wrong "wrong"}
                      {:text         ""

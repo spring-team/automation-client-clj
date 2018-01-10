@@ -1,4 +1,4 @@
-(ns automation.restart
+(ns com.atomist.automation.restart
   (:require [clojure.core.async :as async]
             [clojure.tools.logging :as log]))
 

@@ -1,6 +1,6 @@
-(ns automation.registry
+(ns com.atomist.automation.registry
   (:require [clojure.tools.logging :as log]
-            [automation.config-service :as cs]
+            [com.atomist.automation.config-service :as cs]
             [com.rpl.specter :refer [transform setval walker ALL NONE pred pred= setval END select FIRST]]
             [mount.core :as mount]))
 

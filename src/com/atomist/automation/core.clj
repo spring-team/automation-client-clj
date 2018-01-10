@@ -1,13 +1,13 @@
-(ns automation.core
+(ns com.atomist.automation.core
   (:require [gniazdo.core :as ws]
             [mount.core :as mount]
             [clojure.data.json :as json]
             [clj-http.client :as client]
-            [automation.config-service :as cs]
+            [com.atomist.automation.config-service :as cs]
             [clojure.tools.logging :as log]
-            [automation.registry :as registry]
+            [com.atomist.automation.registry :as registry]
             [clojure.core.async :as async]
-            [automation.restart :refer [with-restart]])
+            [com.atomist.automation.restart :refer [with-restart]])
   (:import (clojure.lang ExceptionInfo)
            (java.util UUID)))
 
