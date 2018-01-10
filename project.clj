@@ -1,4 +1,4 @@
-(defproject com.atomist/automation-client-clj "0.3.10-SNAPSHOT"
+(defproject com.atomist/automation-client-clj "0.3.11-SNAPSHOT"
   :description "Atomist automation client implementation in Clojure"
   :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"

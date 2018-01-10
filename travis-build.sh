@@ -20,11 +20,12 @@ echo "PROJECT_VERSION: ${PROJECT_VERSION}"
 SEMVER=`echo $PROJECT_VERSION | cut -d'-' -f1`
 SNAPSHOT=`echo $PROJECT_VERSION | cut -d'-' -f2`
 
+
 unset CLASSPATH
-if  [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [[ TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    if [ "${TRAVIS_TAG}" == "${SEMVER}" ]; then
+if  [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [[ $TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    if [ "${TRAVIS_BRANCH}" == "${SEMVER}" ]; then
         echo "Performing release: $SEMVER"
-        lein set-version $TRAVIS_TAG || die "Error updating version"
+        lein set-version $SEMVER || die "Error updating version"
         lein deploy clojars
     else
         die "Semver tag does not match project version (with or without -SNAPSHOT)"
