@@ -11,9 +11,6 @@ notifications:
     on_start: always
     urls:
     - https://webhook.atomist.com/travis
-branches:
-  except:
-  - "/^\\d+\\.\\d+\\.\\d+.*$/"
 services:
 - docker
 cache:
