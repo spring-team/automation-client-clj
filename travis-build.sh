@@ -21,7 +21,7 @@ SEMVER=`echo $PROJECT_VERSION | cut -d'-' -f1`
 SNAPSHOT=`echo $PROJECT_VERSION | cut -d'-' -f2`
 
 unset CLASSPATH
-if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [[ $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+if  [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [[ TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     if [ "${TRAVIS_TAG}" == "${SEMVER}" ]; then
         echo "Performing release: $SEMVER"
         lein set-version $TRAVIS_TAG || die "Error updating version"
@@ -29,11 +29,12 @@ if [ "${TRAVIS_BRANCH}" == "master" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ]
     else
         die "Semver tag does not match project version (with or without -SNAPSHOT)"
     fi
-elif [ "$SNAPSHOT" == "SNAPSHOT" ]; then
+elif [ "$SNAPSHOT" == "SNAPSHOT" ] &&  [ "${TRAVIS_BRANCH}" == "master" ]; then
     echo "Doing SNAPSHOT build..."
     lein do clean, test, jar
     lein deploy clojars
 
 else
-    die "Project version is not a snapshot, and no matching semver tag found!"
+    echo "Project version is not a snapshot, and no matching semver tag found!"
+    lein do clean, test
 fi
