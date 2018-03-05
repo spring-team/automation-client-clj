@@ -157,6 +157,12 @@
       (assoc :message s)
       (send-on-socket)))
 
+(defn snippet-message [command content-str filetype title]
+  (-> (select-keys command [:corrid :correlation_context :users :channels])
+      (assoc :content_type "application/x-atomist-slack-file+json")
+      (assoc :message (json/write-str {:content content-str :filetype filetype :title title}))
+      (send-on-socket)))
+
 (defn pprint-data-message [command data]
   (let [message (str "```"
                      (-> data
