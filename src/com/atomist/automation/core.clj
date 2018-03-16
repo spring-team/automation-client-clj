@@ -64,10 +64,15 @@
            :value))
 
 (defn get-secret-value [request secret-name]
-  (some->> (get-in request [:secrets])
-           (filter #(= secret-name (:name %)))
-           first
-           :value))
+  (if (= "1" (:api_version request))
+   (some->> (get-in request [:secrets])
+            (filter #(= secret-name (:uri %)))
+            first
+            :value)
+    (some->> (get-in request [:secrets])
+             (filter #(= secret-name (:uri %)))
+             first
+             :name)))
 
 (declare simple-message failed-status success-status on-receive)
 
@@ -139,28 +144,33 @@
   (log/info "send-on-socket " x)
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
+(defn- add-slack-details [command]
+  (assoc command :source [(:source command)]))
+
 (defn success-status [command]
-  (-> (select-keys command [:corrid :correlation_context :users :channels])
-      (assoc :content_type "application/x-atomist-status+json")
-      (assoc :message (json/json-str {:status "success"}))
+  (-> (select-keys command [:correlation_id :api_version :automation :team :command])
+      (add-slack-details)
+      (assoc :status {:code 0 :message "success"})
       (send-on-socket)))
 
 (defn failed-status [command]
-  (-> (select-keys command [:corrid :correlation_context :users :channels])
-      (assoc :content_type "application/x-atomist-status+json")
-      (assoc :message (json/json-str {:status "failure"}))
+  (-> (select-keys command [:correlation_id :api_version :automation :team :command])
+      (add-slack-details)
+      (assoc :status {:code 1 :message "failure"})
       (send-on-socket)))
 
 (defn simple-message [command s]
-  (-> (select-keys command [:corrid :correlation_context :users :channels])
+  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
       (assoc :content_type "text/plain")
-      (assoc :message s)
+      (assoc :body s)
+      (assoc :destinations [(:source command)])
       (send-on-socket)))
 
 (defn snippet-message [command content-str filetype title]
-  (-> (select-keys command [:corrid :correlation_context :users :channels])
+  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
       (assoc :content_type "application/x-atomist-slack-file+json")
-      (assoc :message (json/write-str {:content content-str :filetype filetype :title title}))
+      (assoc :destinations [(:source command)])
+      (assoc :body (json/write-str {:content content-str :filetype filetype :title title}))
       (send-on-socket)))
 
 (defn pprint-data-message [command data]
@@ -217,7 +227,7 @@
                            action)) actions))))
             attachments)))]
 
-    (-> (select-keys command [:corrid :correlation_context :users :channels])
+    (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
         (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
         (assoc :message

@@ -8,13 +8,14 @@
 (def registry (atom empty-registry))
 
 (defn registration []
-  {:name     (if (cs/get-config-value [:dev-mode] false)
-               (str (cs/get-config-value [:name]) "-" (System/getenv "USER"))
-               (cs/get-config-value [:name]))
-   :version  (cs/get-config-value [:version] "0.0.1-SNAPSHOT")
-   :team_id  (cs/get-config-value [:team-id])
+  {:name (if (cs/get-config-value [:dev-mode] false)
+           (str (cs/get-config-value [:name]) "-" (System/getenv "USER"))
+           (cs/get-config-value [:name]))
+   :version (cs/get-config-value [:version] "0.0.1-SNAPSHOT")
+   :team_ids [(cs/get-config-value [:team-id])]
    :commands (or (:commands @registry) [])
-   :events   (or (:events @registry) [])})
+   :events (or (:events @registry) [])
+   :api_version "1"})
 
 (defn- add
   "add a handler var which exposes a command handler
@@ -44,17 +45,29 @@
        (reset! registry))
       (log/error "all handlers must come from the same ns"))))
 
-(defn command-handler [o]
-  (if-let [handler (get-in @registry [:command-handler-map (:name o)])]
-    (apply handler [o])
-    (log/warnf "no handler for %s" (:name o))))
+(defn command-handler
+  "everything in command-handler-map should be a var"
+  [o]
+  (if (= (:api_version o) "1")
+    (if-let [handler (get-in @registry [:command-handler-map (:command o)])]
+      (apply handler [o])
+      (log/warnf "no handler for %s" (:command o)))
+    (if-let [handler (get-in @registry [:command-handler-map (:name o)])]
+      (apply handler [o])
+      (log/warnf "no handler for %s" (:name o)))))
 
 (defn event-handler [o]
-  (let [{:keys [type operationName team_id team_name correlation_id]} (:extensions o)]
-    (if-let [handler (get-in @registry [:event-handler-map operationName])]
-      (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
-                             :corrid (or correlation_id "missing"))])
-      (log/warnf "no event handler for %s" operationName))))
+  (if (= (:api_version o) "1")
+    (let [{:keys [type operationName correlation_id] {team_id :id team_name :name} :type} (:extensions o)]
+      (if-let [handler (get-in @registry [:event-handler-map operationName])]
+        (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
+                               :corrid (or correlation_id "missing"))])
+        (log/warnf "no event handler for %s" operationName)))
+    (let [{:keys [type operationName team_id team_name correlation_id]} (:extensions o)]
+      (if-let [handler (get-in @registry [:event-handler-map operationName])]
+        (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
+                               :corrid (or correlation_id "missing"))])
+        (log/warnf "no event handler for %s" operationName)))))
 
 (defn add-all-handlers [ns]
   (log/infof "Scanning %s for automations..." ns)
