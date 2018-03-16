@@ -65,10 +65,10 @@
 
 (defn get-secret-value [request secret-name]
   (if (= "1" (:api_version request))
-   (some->> (get-in request [:secrets])
-            (filter #(= secret-name (:uri %)))
-            first
-            :value)
+    (some->> (get-in request [:secrets])
+             (filter #(= secret-name (:uri %)))
+             first
+             :value)
     (some->> (get-in request [:secrets])
              (filter #(= secret-name (:uri %)))
              first
