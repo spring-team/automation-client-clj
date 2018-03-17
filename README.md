@@ -58,7 +58,7 @@ bot.
 (defn
   ^{:command {:name         "HelloClojureWorld"
               :description  "Cheerful greetings"
-              :intent      ["hello world"]
+              :intent       ["hello world"]
               :parameters   [{:name "username" :pattern ".*" :required true}]}}
   hello-clojure-world
   "A very simple handler that responds to `@atomist hello world` asks the user in a thread for a username
@@ -73,7 +73,7 @@ function will be delivered parameters, mapped_parameters, and secrets.
 
 ### Events
 
-These are way more important than Commands.
+Let the bot subscribe to things that happen out there in the world.
 
 ```clj
 (ns fingerprints
@@ -82,7 +82,7 @@ These are way more important than Commands.
 (defn
   ^{:event   {:name        "hello-github-commit"
               :description "watch for commits"
-              :secrets     ["github://org_token?scopes=repo"]
+              :secrets     [{:uri "github://org_token?scopes=repo"}]
               :subscription "subscription CommitHappened {Commit {sha repo {name org {owner ownerType}}}}}}
 
   handler-hello-clj
@@ -119,8 +119,13 @@ message was sent from (here, channel can also mean direct message during a 1 on 
 Addressing a message to other channels is also possible:
 
 ```clj
-(api/simple-message (api/user "user-name") "eh!") ;; send a DM to a user - could be considered rude
-(api/simple-message (api/channel "repo-channel") "I have something to tell all of you") ;; send a DM to a channel
+;; o is the incoming command or subscription event
+(-> o
+    (api/user "user-name)
+    (api/simple-message "eh!")) ;; send a DM to a user named user-name
+(-> o
+    (api/user "user-name")
+    (api/simple-message "I have something to tell all of you")) ;; have the bot send a message to a channel
 ```
 
 ### Actionable Messages
@@ -137,13 +142,13 @@ a callback function into slack.
                   :callback_id "random-id"
                   :actions     [{:text    "Say hello"
                                  :type    "button"
-                                 :command {:rug            {:type "command_handler"
-                                                            :name "HelloClojureWorld")}
-                                           :parameters     [{:name "username" :value "Ben"}]}}]}]})
+                                 :atomist/command {
+                                   :command "hello-github-commit"
+                                   :parameters     [{:name "username" :value "Ben"}]}}]}]})
 ```
 
-Most of the structure of this message is defined by [Slack Attachments][slack-attachments].  However, the `:command` in
-the action is an Atomist-specific addition.  It allows the Slack action to reference one of your command handlers, and
+Most of the structure of this message is defined by [Slack Attachments][slack-attachments].  However, the `:atomist/command` in
+the action is an Atomist-specific addition.  It allows the Slack action to reference one of your command handlers by name, and
 it allows the message to partially apply some parameters to the command handler.  The parameter list can be empty.
 An empty parameter list just means that the bot will have to ask more questions (if the reference command handlers has
 required parameters).
@@ -166,8 +171,8 @@ passed to your handler.
                                  :type    "select"
                                  :options [{:text "say Hi to Ben" :value "Ben"}
                                            {:text "say Hi to Jim" :value "Jim"}]
-                                 :command {:rug            {:type "command_handler"
-                                                            :name "HelloClojureWorld")}
+                                 :atomist/command
+                                           :command "HelloClojureWorld"
                                            :parameter_name "username"
                                            :parameters     []}}]}]})
 ```
