@@ -7,7 +7,8 @@
             [clojure.tools.logging :as log]
             [com.atomist.automation.registry :as registry]
             [clojure.core.async :as async]
-            [com.atomist.automation.restart :refer [with-restart]])
+            [com.atomist.automation.restart :refer [with-restart]]
+            [com.rpl.specter :as specter])
   (:import (clojure.lang ExceptionInfo)
            (java.util UUID)))
 
@@ -27,7 +28,7 @@
 
 (defn get-registration []
   (->> (client/get (automation-url "/registration") {:headers {:authorization (get-token)}
-                                                     :as      :json})
+                                                     :as :json})
        :body))
 
 (defn delete-registration [session-id]
@@ -42,12 +43,12 @@
     (log/info (registry/registration))
     (log/info url)
     (-> (client/post url
-                     {:body           (json/write-str (registry/registration))
-                      :content-type   :json
-                      :headers        {:authorization auth-header}
+                     {:body (json/write-str (registry/registration))
+                      :content-type :json
+                      :headers {:authorization auth-header}
                       :socket-timeout 10000
-                      :conn-timeout   5000
-                      :accept         :json})
+                      :conn-timeout 5000
+                      :accept :json})
         :body
         (json/read-str :key-fn keyword))))
 
@@ -81,7 +82,7 @@
   (let [response (register)]
     (log/info "response " response)
 
-    {:response   response
+    {:response response
      :connection (ws/connect
                   (:url response)
                   :on-receive on-receive
@@ -133,44 +134,51 @@
   (let [response
         (client/post
          (automation-url (format "/graphql/team/%s" team-id))
-         {:body             (json/json-str {:query query :variables []})
-          :headers          {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
+         {:body (json/json-str {:query query :variables []})
+          :headers {:authorization (format "Bearer %s" (-> @connection :response :jwt))}
           :throw-exceptions false})]
     (if (and (not (:errors response)) (= 200 (:status response)))
       (-> response :body (json/read-str :key-fn keyword))
       (log/warnf "failure to run %s query %s\n%s" team-id query response))))
 
 (defn- send-on-socket [x]
-  (log/info "send-on-socket " x)
+  (log/info "send-on-socket " (with-out-str (clojure.pprint/pprint x)))
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
 (defn- add-slack-details [command]
   (assoc command :source [(:source command)]))
 
+(defn- default-destination [o]
+  (if (or (not (:destinations o)) (empty? (:destinations o)))
+    (-> o
+        (update :destinations (constantly [(:source o)]))
+        (update-in [:destinations 0 :slack] #(dissoc % :user)))
+    o))
+
 (defn success-status [command]
   (-> (select-keys command [:correlation_id :api_version :automation :team :command])
       (add-slack-details)
-      (assoc :status {:code 0 :message "success"})
+      (assoc :status {:code 0 :reason "success"})
       (send-on-socket)))
 
 (defn failed-status [command]
   (-> (select-keys command [:correlation_id :api_version :automation :team :command])
       (add-slack-details)
-      (assoc :status {:code 1 :message "failure"})
+      (assoc :status {:code 1 :reason "failure"})
       (send-on-socket)))
 
 (defn simple-message [command s]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
+  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
       (assoc :content_type "text/plain")
       (assoc :body s)
-      (assoc :destinations [(:source command)])
+      (default-destination)
       (send-on-socket)))
 
 (defn snippet-message [command content-str filetype title]
-  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
+  (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
       (assoc :content_type "application/x-atomist-slack-file+json")
-      (assoc :destinations [(:source command)])
       (assoc :body (json/write-str {:content content-str :filetype filetype :title title}))
+      (default-destination)
       (send-on-socket)))
 
 (defn pprint-data-message [command data]
@@ -189,12 +197,15 @@
     (update a-map k fn)
     a-map))
 
-(defn channel [o channel]
+(defn channel [o c]
   (-> o
-      (assoc :channels [channel])))
+      (default-destination)
+      (update-in [:destinations 0 :slack] (fn [x] (-> x (assoc :channel {:name c}) (dissoc :user))))))
 
-(defn user [o user]
-  (assoc o :users [user]))
+(defn user [o u]
+  (-> o
+      (default-destination)
+      (update-in [:destinations 0 :slack] (fn [x] (-> x (assoc :user {:name u}) (dissoc :channel))))))
 
 (defn get-team-id
   [o]
@@ -202,65 +213,58 @@
   (or (-> o :extensions :team_id)
       (-> o :team :id)))
 
+(defn- add-ids-to-commands [slack]
+  (let [num (atom 0)]
+    (specter/transform [:attachments specter/ALL :actions specter/ALL]
+                       #(if (:atomist/command %)
+                          (-> %
+                              (assoc-in [:atomist/command :id]
+                                        (str (get-in % [:atomist/command :rug :name])
+                                             "-"
+                                             (swap! num inc)))
+                              (assoc-in [:atomist/command :automation]
+                                        {:name (cs/get-config-value [:name])
+                                         :version (cs/get-config-value [:version] "0.0.1-SNAPSHOT")}))
+                          %)
+                       slack)))
+
+(defn- transform-to-slack-actions [slack]
+  (specter/transform [:attachments specter/ALL :actions specter/ALL]
+                     #(if (:atomist/command %)
+                        (let [action-id (get-in % [:atomist/command :id])]
+                          (case (:type %)
+                            "button"
+                            (-> %
+                                (dissoc :atomist/command)
+                                (assoc :name (str  "automation-command::" action-id))
+                                (assoc :value action-id))
+                            "select"
+                            (-> %
+                                (dissoc :atomist/command)
+                                (assoc :name (str (-> % :atomist/command :command) "::" action-id)))
+                            %))
+                        %)
+                     slack))
+
 (defn actionable-message
   "  params
        command - incoming Command Request data
        slack   - slack Message data where all actions may refer to
                  other CommandHandlers"
   [command slack & [opts]]
-  (let [num (atom 0)
-        slack-with-action-ids
-        (update-when-seq
-         slack :attachments
-         (fn [attachments]
-           (mapv
-            (fn [attachment]
-              (update-when-seq
-               attachment :actions
-               (fn [actions]
-                 (mapv (fn [action]
-                         (if (:atomist/command action)
-                           (assoc-in action [:atomist/command :id]
-                                     (str (get-in action [:atomist/command :rug :name])
-                                          "-"
-                                          (swap! num inc)))
-                           action)) actions))))
-            attachments)))]
 
-    (-> (select-keys command [:correlation_id :api_version :automation :team :source :command])
+  (let [commands-with-ids (add-ids-to-commands slack)]
+
+    (-> (select-keys command [:correlation_id :api_version :automation :team :source :command :destinations])
+
         (merge opts)
         (assoc :content_type "application/x-atomist-slack+json")
-        (assoc :message
-               (-> slack-with-action-ids
-                   (update-when-seq
-                    :attachments
-                    (fn [attachments]
-                      (mapv
-                       (fn [attachment]
-                         (update-when-seq
-                          attachment :actions
-                          (fn [actions]
-                            (mapv
-                             (fn [action]
-                               (if (:atomist/command action)
-                                 (let [action-id (get-in action [:atomist/command :id])]
-                                   (case (:type action)
-                                     "button"
-                                     (-> action
-                                         (dissoc :atomist/command)
-                                         (assoc :name "rug")
-                                         (assoc :value action-id))
-                                     "select"
-                                     (-> action
-                                         (dissoc :atomist/command)
-                                         (assoc :name (str "rug::" action-id)))
-                                     action))
-                                 action))
-                             actions))))
-                       attachments)))
-                   (json/json-str)))
-        (assoc :actions (->> (:attachments slack-with-action-ids)
+        (assoc :body (-> commands-with-ids
+                         (transform-to-slack-actions)
+                         (json/json-str)))
+        (assoc :actions (->> (:attachments commands-with-ids)
                              (mapcat :actions)
                              (filter :atomist/command)
                              (mapv :atomist/command)))
+        (default-destination)
         (send-on-socket))))

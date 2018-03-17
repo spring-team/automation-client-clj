@@ -43,31 +43,21 @@
        (transform [:command-handler-map] #(merge % (name-map :command handlers)))
        (transform [:event-handler-map] #(merge % (name-map :event handlers)))
        (reset! registry))
-      (log/error "all handlers must come from the same ns"))))
+      (log/error "all handlers must come from the same ns"))))@
 
 (defn command-handler
   "everything in command-handler-map should be a var"
   [o]
-  (if (= (:api_version o) "1")
-    (if-let [handler (get-in @registry [:command-handler-map (:command o)])]
-      (apply handler [o])
-      (log/warnf "no handler for %s" (:command o)))
-    (if-let [handler (get-in @registry [:command-handler-map (:name o)])]
-      (apply handler [o])
-      (log/warnf "no handler for %s" (:name o)))))
+  (if-let [handler (get-in @registry [:command-handler-map (:command o)])]
+    (apply handler [o])
+    (log/warnf "no handler for %s" (:command o))))
 
 (defn event-handler [o]
-  (if (= (:api_version o) "1")
-    (let [{:keys [type operationName correlation_id] {team_id :id team_name :name} :type} (:extensions o)]
-      (if-let [handler (get-in @registry [:event-handler-map operationName])]
-        (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
-                               :corrid (or correlation_id "missing"))])
-        (log/warnf "no event handler for %s" operationName)))
-    (let [{:keys [type operationName team_id team_name correlation_id]} (:extensions o)]
-      (if-let [handler (get-in @registry [:event-handler-map operationName])]
-        (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
-                               :corrid (or correlation_id "missing"))])
-        (log/warnf "no event handler for %s" operationName)))))
+  (let [{:keys [type operationName correlation_id] {team_id :id team_name :name} :type} (:extensions o)]
+    (if-let [handler (get-in @registry [:event-handler-map operationName])]
+      (apply handler [(assoc o :correlation_context {:team {:id team_id :name team_name}}
+                             :corrid (or correlation_id "missing"))])
+      (log/warnf "no event handler for %s" operationName))))
 
 (defn add-all-handlers [ns]
   (log/infof "Scanning %s for automations..." ns)
