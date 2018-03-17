@@ -43,14 +43,12 @@
        (transform [:command-handler-map] #(merge % (name-map :command handlers)))
        (transform [:event-handler-map] #(merge % (name-map :event handlers)))
        (reset! registry))
-      (log/error "all handlers must come from the same ns"))))@
-
-(defn command-handler
-  "everything in command-handler-map should be a var"
-  [o]
-  (if-let [handler (get-in @registry [:command-handler-map (:command o)])]
-    (apply handler [o])
-    (log/warnf "no handler for %s" (:command o))))
+      (log/error "all handlers must come from the same ns")))) @(defn command-handler
+                                                                  "everything in command-handler-map should be a var"
+                                                                  [o]
+                                                                  (if-let [handler (get-in @registry [:command-handler-map (:command o)])]
+                                                                    (apply handler [o])
+                                                                    (log/warnf "no handler for %s" (:command o))))
 
 (defn event-handler [o]
   (let [{:keys [type operationName correlation_id] {team_id :id team_name :name} :type} (:extensions o)]
