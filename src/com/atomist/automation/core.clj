@@ -107,11 +107,17 @@
 (defn- on-receive [msg]
   (let [o (json/read-str msg :key-fn keyword)]
     (if (:ping o)
-      (ws/send-msg (:connection @connection) (json/write-str {:pong (:ping o)}))
+      (do
+        (log/debugf "ping %s" (:ping o))
+        (ws/send-msg (:connection @connection) (json/write-str {:pong (:ping o)})))
       (if (:data o)
         (do
-          (log/info "Received events" (with-out-str (clojure.pprint/pprint o)))
-          (registry/event-handler o))
+          (try
+            (log/infof "received event %s" (->> o :data keys))
+            (log/debugf "event payload %s" (with-out-str (clojure.pprint/pprint o)))
+            (registry/event-handler o)
+            (catch Throwable t
+              (log/error t (format "problem processing the event loop %s" o)))))
         (do
           (log/info "Received commands:\n" (with-out-str (clojure.pprint/pprint (dissoc o :secrets))))
           (try
@@ -142,7 +148,8 @@
       (log/warnf "failure to run %s query %s\n%s" team-id query response))))
 
 (defn- send-on-socket [x]
-  (log/info "send-on-socket " (with-out-str (clojure.pprint/pprint x)))
+  (log/infof "send-on-socket %s" x)
+  (log/debugf "send-on-socket %s" (with-out-str (clojure.pprint/pprint x)))
   (ws/send-msg (-> @connection :connection) (json/json-str x)))
 
 (defn- add-slack-details [command]
@@ -154,6 +161,10 @@
         (update :destinations (constantly [(:source o)]))
         (update-in [:destinations 0 :slack] #(dissoc % :user)))
     o))
+
+(defn add-slack-source [command team-id team-name]
+  (assoc command :source {:user_agent "slack"
+                          :slack {:team {:id team-id :name team-name}}}))
 
 (defn success-status [command]
   (-> (select-keys command [:correlation_id :api_version :automation :team :command])
