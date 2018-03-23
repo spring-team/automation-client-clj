@@ -42,15 +42,21 @@
         url (automation-url "/registration")]
     (log/info (registry/registration))
     (log/info url)
-    (-> (client/post url
-                     {:body (json/write-str (registry/registration))
-                      :content-type :json
-                      :headers {:authorization auth-header}
-                      :socket-timeout 10000
-                      :conn-timeout 5000
-                      :accept :json})
-        :body
-        (json/read-str :key-fn keyword))))
+    (let [response (client/post url
+                                {:body (json/write-str (registry/registration))
+                                 :content-type :json
+                                 :headers {:authorization auth-header}
+                                 :socket-timeout 10000
+                                 :conn-timeout 5000
+                                 :accept :json
+                                 :throw-exceptions false})]
+      (if (= 200 (:status response))
+        (-> response
+            :body
+            (json/read-str :key-fn keyword))
+        (do
+          (log/errorf "failed to register %s" response)
+          (throw (ex-info "failed to register" response)))))))
 
 (defn get-parameter-value [request parameter-name]
   (some->> (get-in request [:parameters])
@@ -190,6 +196,15 @@
       (assoc :content_type "application/x-atomist-slack-file+json")
       (assoc :body (json/write-str {:content content-str :filetype filetype :title title}))
       (default-destination)
+      (send-on-socket)))
+
+(defn ingest [o x channel]
+  (-> x
+      (select-keys [:api_version :correlation_id :team :automation])
+      (assoc :content_type "application/json"
+             :body (json/json-str x)
+             :destinations [{:user_agent "ingester"
+                             :ingester {:root_type channel}}])
       (send-on-socket)))
 
 (defn pprint-data-message [command data]
