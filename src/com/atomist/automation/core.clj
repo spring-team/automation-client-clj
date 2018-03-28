@@ -16,7 +16,7 @@
 (def prod-url "https://automation.atomist.com")
 
 (defn get-token []
-  (let [gt (cs/get-config-value [:github-token])]
+  (let [gt (or (System/getenv "ATOMIST_TOKEN") (cs/get-config-value [:github-token]))]
     (str "token " (or (:value gt) gt))))
 
 (defn automation-url [end]
