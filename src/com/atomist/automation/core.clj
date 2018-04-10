@@ -17,7 +17,7 @@
     (str "token " (or (:value gt) gt))))
 
 (defn automation-url [end]
-  (str (or (cs/get-config-value [:automation-api]) "https://automation.atomist.com" ) end))
+  (str (or (cs/get-config-value [:automation-api]) "https://automation.atomist.com") end))
 
 (defn get-registration []
   (->> (client/get (automation-url "/registration") {:headers {:authorization (get-token)}
