@@ -1,4 +1,4 @@
-(defproject com.atomist/automation-client-clj "0.4.2"
+(defproject com.atomist/automation-client-clj "0.5.0"
   :description "Atomist automation client implementation in Clojure"
   :url "https://github.com/atomisthq/automation-client-clj"
   :license {:name "Eclipse Public License"
@@ -14,7 +14,6 @@
                  ;; util
                  [mount "0.1.11"]
                  [environ "1.0.0"]
-                 [cprop "0.1.11"]
                  [diehard "0.7.0"]
                  [com.rpl/specter "1.0.5"]
 
