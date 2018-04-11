@@ -184,3 +184,5 @@ passed to your handler.
 - Create a semver tag to do a proper release to Clojars - it must match the numerical part of the project version
 (i.e. without the -SNAPSHOT)
 You are the delta in what you do, not the things you did in the past
+
+It’s only a thought, and a thought can be changed.
